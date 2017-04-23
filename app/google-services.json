@@ -1,79 +1,27 @@
 {
   "project_info": {
-    "project_number": "761321876846",
-    "firebase_url": "https://fir-app-ceaaf.firebaseio.com",
-    "project_id": "fir-app-ceaaf",
-    "storage_bucket": "fir-app-ceaaf.appspot.com"
+    "project_number": "212902175974",
+    "firebase_url": "https://concise-torus-149606.firebaseio.com",
+    "project_id": "concise-torus-149606",
+    "storage_bucket": "concise-torus-149606.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:761321876846:android:197576c2fa6300cd",
-        "android_client_info": {
-          "package_name": "com.example.kshitija.firebaseapp"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "761321876846-em6lltr259iill27n59limd8eeh61irh.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.kshitija.firebaseapp",
-            "certificate_hash": "119b29f70fd7d9f6f842da0d18cd9baf19e3b025"
-          }
-        },
-        {
-          "client_id": "761321876846-65qo0rosd5emp4njkorqued6upor58e7.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBwgMJSc7QYgJjRb7arSsN8pIjE7NrGXIc"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "761321876846-65qo0rosd5emp4njkorqued6upor58e7.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:761321876846:android:96136f6ec2d9ddf7",
+        "mobilesdk_app_id": "1:212902175974:android:96136f6ec2d9ddf7",
         "android_client_info": {
           "package_name": "com.example.kshitija.googlemaps"
         }
       },
       "oauth_client": [
         {
-          "client_id": "761321876846-ujkftr3n23d06igs08hd9g3f1sa5k1rd.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.kshitija.googlemaps",
-            "certificate_hash": "119b29f70fd7d9f6f842da0d18cd9baf19e3b025"
-          }
-        },
-        {
-          "client_id": "761321876846-65qo0rosd5emp4njkorqued6upor58e7.apps.googleusercontent.com",
+          "client_id": "212902175974-gcrv333rnn9rvm7ifta9au5g784p204v.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBwgMJSc7QYgJjRb7arSsN8pIjE7NrGXIc"
+          "current_key": "AIzaSyBgTEd4DHYty-Dg5DGcmxV-Fdf7UUPo1EU"
         }
       ],
       "services": {
@@ -81,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "761321876846-65qo0rosd5emp4njkorqued6upor58e7.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2
