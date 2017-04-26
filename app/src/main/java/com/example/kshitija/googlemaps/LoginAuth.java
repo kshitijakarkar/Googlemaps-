@@ -50,7 +50,7 @@ public class LoginAuth extends FragmentActivity{
             public void onSuccess(LoginResult loginResult) {
 
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                //handleFacebookAccessToken(loginResult.getAccessToken());
+                handleFacebookAccessToken(loginResult.getAccessToken());
                 Intent i = new Intent( LoginAuth.this, MapsActivity.class);
                 startActivity(i);
 
@@ -93,6 +93,8 @@ public class LoginAuth extends FragmentActivity{
         });
     }
 
+
+
     @Override
     public void onStart() {
         super.onStart();
@@ -101,10 +103,6 @@ public class LoginAuth extends FragmentActivity{
         //updateUI(currentUser);
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-    }
 
     public void signOut() {
         mAuth.signOut();
@@ -112,6 +110,11 @@ public class LoginAuth extends FragmentActivity{
 
         //updateUI(null);
     }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
 
 
 }

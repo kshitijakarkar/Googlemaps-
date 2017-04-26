@@ -5,19 +5,27 @@ import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -25,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 
+import static android.R.attr.button;
 import static android.R.attr.data;
 import static android.R.attr.value;
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
@@ -36,32 +45,31 @@ import static android.os.Build.VERSION_CODES.N;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-   public static class StoreLocations{
+    public static class StoreLocations {
 
-       public Double latitude,longitude;
-       public String name;
-       public Integer access, item;
+        public Double latitude, longitude;
+        public String name;
+        public Integer access, item;
 
-       public StoreLocations(){}
+        public StoreLocations() {
+        }
 
-       public StoreLocations(Double latitude,Double longitude, String name,Integer access,Integer item)
-       {
-           this.name = name;
-           this.latitude = latitude;
-           this.longitude = longitude;
-           this.item = item;
-           this.access = access;
-       }
+        public StoreLocations(Double latitude, Double longitude, String name, Integer access, Integer item) {
+            this.name = name;
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.item = item;
+            this.access = access;
+        }
 
 
-   }
+    }
 
 
     private GoogleMap mMap;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("markers");
-    //DatabaseReference mchild = myRef.child("marker2");
-
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +80,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //myRef.setValue("Hello, World!");
+        button = new Button(this);
+
+        button.setVisibility(button.INVISIBLE);
+        addContentView(button, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT));
+
+
     }
 
 
@@ -88,23 +102,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLngBounds California = new LatLngBounds(new LatLng(34.352,-122.20),new LatLng(35.09,-113.58));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(California.getCenter(),5));
-
+        final ArrayList<StoreLocations> randomstore = new ArrayList<>();
+        LatLngBounds California = new LatLngBounds(new LatLng(34.352, -122.20), new LatLng(35.09, -113.58));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(California.getCenter(), 5));
+        mMap.getUiSettings().setZoomControlsEnabled(true);
         myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+           @Override
+            public void onDataChange(final DataSnapshot dataSnapshot) {
 
-                ArrayList<StoreLocations> randomstore = new ArrayList<>();
 
                 for (DataSnapshot detailsSnapshot : dataSnapshot.getChildren()) {
 
 
+
+                    Integer acc = detailsSnapshot.child("access").getValue(Integer.class);
+                    Integer item = detailsSnapshot.child("item").getValue(Integer.class);
                     Double lng = detailsSnapshot.child("lon").getValue(Double.class);
                     Double lat = detailsSnapshot.child("lat").getValue(Double.class);
                     String loc = detailsSnapshot.child("title").getValue(String.class);
-                    Integer acc = detailsSnapshot.child("access").getValue(Integer.class);
-                    Integer item = detailsSnapshot.child("item").getValue(Integer.class);
+//
 
                     StoreLocations s = new StoreLocations(lat, lng, loc, acc, item);
 
@@ -112,11 +128,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
                 Collections.shuffle(randomstore);
-
-                for(int i =0;i<10;i++){
+                for (int i = 0; i < 10; i++) {
                     StoreLocations s = randomstore.get(i);
-                    System.out.println("item : .............."+s.item);
-                    LatLng pos = new LatLng(s.longitude,s.latitude);
+                    System.out.println("item : .............." + s.item);
+                    LatLng pos = new LatLng(s.longitude, s.latitude);
                     mMap.addMarker(new MarkerOptions().position(pos).title(s.name));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
                 }
@@ -130,8 +145,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+//
+//
+//
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(final Marker marker) {
+                mMap.moveCamera(CameraUpdateFactory.zoomBy(5));
+                Toast.makeText(MapsActivity.this, "Marker clicked is " + marker.getTitle(), Toast.LENGTH_SHORT).show();
+                button.setText("Click to Save " + marker.getTitle());
+                button.setVisibility(button.VISIBLE);
 
-    }
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(MapsActivity.this, "Button clicked !!!!! ", Toast.LENGTH_SHORT).show();
+                        //String key = myRef.getKey();
+                        //dataSnapshot.child(marker.getTitle()).
+                        final String m = marker.getTitle();
+                        System.out.println(" m has "+m);
+                        myRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                long number = dataSnapshot.getChildrenCount();
+                                Object mar = dataSnapshot.getValue(Object.class);
+                                System.out.println("Number is "+number);
+                                System.out.println("Main is "+mar);
+//                                String hope = myRef.child("marker1").toString();
+//                                System.out.println("THIS PRINTS is "+hope);
+                                for (DataSnapshot detailsSnapshot : dataSnapshot.getChildren()) {
+                                    String loc = detailsSnapshot.child("title").getValue(String.class);
+                                    if(m.equals(loc)){
+                                        System.out.println("Match!");
+                                    }
+                                }
 
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
+
+                    }
+                });
+                return false;
+            }
+        });
+
+   }
 
 }
+
+
+
