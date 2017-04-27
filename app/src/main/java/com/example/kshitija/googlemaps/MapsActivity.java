@@ -1,6 +1,8 @@
 package com.example.kshitija.googlemaps;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -69,6 +71,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("markers");
+    final ArrayList<StoreLocations> randomstore = new ArrayList<>();
     Button button;
 
     @Override
@@ -102,7 +105,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        final ArrayList<StoreLocations> randomstore = new ArrayList<>();
+
         LatLngBounds California = new LatLngBounds(new LatLng(34.352, -122.20), new LatLng(35.09, -113.58));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(California.getCenter(), 5));
         mMap.getUiSettings().setZoomControlsEnabled(true);
@@ -127,16 +130,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     randomstore.add(s);
 
                 }
-                Collections.shuffle(randomstore);
-                for (int i = 0; i < 10; i++) {
-                    StoreLocations s = randomstore.get(i);
-                    System.out.println("item : .............." + s.item);
-                    LatLng pos = new LatLng(s.longitude, s.latitude);
-                    mMap.addMarker(new MarkerOptions().position(pos).title(s.name));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
-                }
+
+               Collections.shuffle(randomstore);
+               for (int i = 0; i < 10; i++) {
+                   StoreLocations s = randomstore.get(i);
+                   System.out.println("title.................."+s.name);
+                   System.out.println("item : .............." + s.item);
+                   System.out.println("access : .............." + s.access);
+
+                   LatLng pos = new LatLng(s.longitude, s.latitude);
+                   mMap.addMarker(new MarkerOptions().position(pos).title(s.name));
+                   mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
+               }
+
+
 
             }
+
+
+
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -145,7 +157,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-//
+
+
 //
 //
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -159,32 +172,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(MapsActivity.this, "Button clicked !!!!! ", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MapsActivity.this, "Button clicked !!!!! ", Toast.LENGTH_SHORT).show();
                         //String key = myRef.getKey();
                         //dataSnapshot.child(marker.getTitle()).
                         final String m = marker.getTitle();
                         System.out.println(" m has "+m);
-                        myRef.addValueEventListener(new ValueEventListener() {
+
+                        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                long number = dataSnapshot.getChildrenCount();
-                                Object mar = dataSnapshot.getValue(Object.class);
-                                System.out.println("Number is "+number);
-                                System.out.println("Main is "+mar);
-//                                String hope = myRef.child("marker1").toString();
-//                                System.out.println("THIS PRINTS is "+hope);
+//                                Object mar = dataSnapshot.getValue(Object.class);
+//                                System.out.println("Main is "+mar);
+                                String i;
+                                String set;
+                                Integer number;
+                                String r = dataSnapshot.child("title").getValue(String.class);
                                 for (DataSnapshot detailsSnapshot : dataSnapshot.getChildren()) {
                                     String loc = detailsSnapshot.child("title").getValue(String.class);
                                     if(m.equals(loc)){
-                                        System.out.println("Match!");
+                                        i=detailsSnapshot.child("item").getValue(Integer.class).toString();
+                                        set = "marker"+i;
+                                        System.out.println("Value set at "+set);
+
+                                        number = detailsSnapshot.child("access").getValue(Integer.class);
+                                        System.out.println(" Access is "+number);
+                                        number = number+1;
+
+                                        myRef.child(set).child("access").setValue(number);
+
+                                        Toast.makeText(MapsActivity.this, "Thank you for using FastER", Toast.LENGTH_SHORT).show();
+                                        onRestart();
                                     }
                                 }
+
 
                             }
 
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
-
+                                System.out.println("The read failed: " + databaseError.getCode());
                             }
                         });
 
@@ -196,6 +222,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+
+
+   }
+
+   protected void onRestart(){
+       super.onRestart();
+       Intent i = new Intent(this,MapsActivity.class);
+       startActivity(i);
+       finish();
    }
 
 }
