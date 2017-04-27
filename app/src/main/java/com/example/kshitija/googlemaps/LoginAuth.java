@@ -38,6 +38,7 @@ public class LoginAuth extends FragmentActivity{
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.firstpage);
 
+
         mAuth = FirebaseAuth.getInstance();
 
         callbackManager = CallbackManager.Factory.create();
@@ -104,17 +105,18 @@ public class LoginAuth extends FragmentActivity{
     }
 
 
+
     public void signOut() {
         mAuth.signOut();
         LoginManager.getInstance().logOut();
 
         //updateUI(null);
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-
-
+    
 }

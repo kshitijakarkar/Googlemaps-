@@ -110,20 +110,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(California.getCenter(), 5));
         mMap.getUiSettings().setZoomControlsEnabled(true);
         myRef.addValueEventListener(new ValueEventListener() {
+
            @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
 
 
                 for (DataSnapshot detailsSnapshot : dataSnapshot.getChildren()) {
 
-
-
                     Integer acc = detailsSnapshot.child("access").getValue(Integer.class);
                     Integer item = detailsSnapshot.child("item").getValue(Integer.class);
                     Double lng = detailsSnapshot.child("lon").getValue(Double.class);
                     Double lat = detailsSnapshot.child("lat").getValue(Double.class);
                     String loc = detailsSnapshot.child("title").getValue(String.class);
-//
 
                     StoreLocations s = new StoreLocations(lat, lng, loc, acc, item);
 
@@ -134,9 +132,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                Collections.shuffle(randomstore);
                for (int i = 0; i < 10; i++) {
                    StoreLocations s = randomstore.get(i);
-                   System.out.println("title.................."+s.name);
-                   System.out.println("item : .............." + s.item);
-                   System.out.println("access : .............." + s.access);
 
                    LatLng pos = new LatLng(s.longitude, s.latitude);
                    mMap.addMarker(new MarkerOptions().position(pos).title(s.name));
@@ -144,11 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                }
 
 
-
             }
-
-
-
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -159,30 +150,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-//
-//
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(final Marker marker) {
                 mMap.moveCamera(CameraUpdateFactory.zoomBy(5));
-                Toast.makeText(MapsActivity.this, "Marker clicked is " + marker.getTitle(), Toast.LENGTH_SHORT).show();
                 button.setText("Click to Save " + marker.getTitle());
                 button.setVisibility(button.VISIBLE);
 
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Toast.makeText(MapsActivity.this, "Button clicked !!!!! ", Toast.LENGTH_SHORT).show();
-                        //String key = myRef.getKey();
-                        //dataSnapshot.child(marker.getTitle()).
                         final String m = marker.getTitle();
                         System.out.println(" m has "+m);
-
+                        final ProgressDialog Dialog = new ProgressDialog(MapsActivity.this);
+                        Dialog.setMessage("Saving");
                         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-//                                Object mar = dataSnapshot.getValue(Object.class);
-//                                System.out.println("Main is "+mar);
                                 String i;
                                 String set;
                                 Integer number;
@@ -197,9 +181,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         number = detailsSnapshot.child("access").getValue(Integer.class);
                                         System.out.println(" Access is "+number);
                                         number = number+1;
+                                        Dialog.show();
+
 
                                         myRef.child(set).child("access").setValue(number);
-
+                                        Dialog.dismiss();
                                         Toast.makeText(MapsActivity.this, "Thank you for using FastER", Toast.LENGTH_SHORT).show();
                                         onRestart();
                                     }
@@ -228,7 +214,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
    protected void onRestart(){
        super.onRestart();
-       Intent i = new Intent(this,MapsActivity.class);
+       Intent i = new Intent(getApplicationContext(),MapsActivity.class);
        startActivity(i);
        finish();
    }
