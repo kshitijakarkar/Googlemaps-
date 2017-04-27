@@ -2,6 +2,8 @@ package com.example.kshitija.googlemaps;
 
 /**
  * Created by KSHITIJA on 4/24/2017.
+ *  Firebase Authentication using Facebook
+ *
  */
 import android.content.Intent;
 import android.os.Bundle;
@@ -52,7 +54,7 @@ public class LoginAuth extends FragmentActivity{
 
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 handleFacebookAccessToken(loginResult.getAccessToken());
-                Intent i = new Intent( LoginAuth.this, MapsActivity.class);
+                Intent i = new Intent( LoginAuth.this, MapsActivity.class);  //to start google maps activity
                 startActivity(i);
 
             }
@@ -81,13 +83,13 @@ public class LoginAuth extends FragmentActivity{
                 if(task.isSuccessful()){
                     Log.d(TAG, "signInWithCredential:success");
                     FirebaseUser user = mAuth.getCurrentUser();
-                   // updateUI(user);
+
                 }
                 else{
                     Log.w(TAG, "signInWithCredential:failure", task.getException());
                     Toast.makeText(LoginAuth.this, "Authentication failed.",
                             Toast.LENGTH_SHORT).show();
-                    //updateUI(null);
+
                 }
 
             }
@@ -100,8 +102,8 @@ public class LoginAuth extends FragmentActivity{
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
+        FirebaseUser currentUser = mAuth.getCurrentUser();   //User details stored in OAUTH in Firebase console
+
     }
 
 
@@ -110,7 +112,7 @@ public class LoginAuth extends FragmentActivity{
         mAuth.signOut();
         LoginManager.getInstance().logOut();
 
-        //updateUI(null);
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -118,5 +120,5 @@ public class LoginAuth extends FragmentActivity{
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    
+
 }

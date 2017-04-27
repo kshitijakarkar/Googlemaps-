@@ -1,5 +1,11 @@
 package com.example.kshitija.googlemaps;
+/*
+    Google map is loaded with 10 locations. Camera zooms in to the selected location.
+    Save button appears on top screen to update number of clicks to that Medical Facility.
+    After Update is done Thank ou message pops up with new locations.
 
+
+ */
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.provider.ContactsContract;
@@ -34,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
+import com.example.kshitija.googlemaps.StoreLocations;
 
 import static android.R.attr.button;
 import static android.R.attr.data;
@@ -47,31 +54,11 @@ import static android.os.Build.VERSION_CODES.N;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    public static class StoreLocations {
-
-        public Double latitude, longitude;
-        public String name;
-        public Integer access, item;
-
-        public StoreLocations() {
-        }
-
-        public StoreLocations(Double latitude, Double longitude, String name, Integer access, Integer item) {
-            this.name = name;
-            this.latitude = latitude;
-            this.longitude = longitude;
-            this.item = item;
-            this.access = access;
-        }
-
-
-    }
-
 
     private GoogleMap mMap;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("markers");
-    final ArrayList<StoreLocations> randomstore = new ArrayList<>();
+    final ArrayList<StoreLocations> randomstore = new ArrayList<>(); //To get locations randomly
     Button button;
 
     @Override
@@ -107,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         LatLngBounds California = new LatLngBounds(new LatLng(34.352, -122.20), new LatLng(35.09, -113.58));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(California.getCenter(), 5));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(California.getCenter(), 5)); //Default to zoom California
         mMap.getUiSettings().setZoomControlsEnabled(true);
         myRef.addValueEventListener(new ValueEventListener() {
 
@@ -123,18 +110,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Double lat = detailsSnapshot.child("lat").getValue(Double.class);
                     String loc = detailsSnapshot.child("title").getValue(String.class);
 
-                    StoreLocations s = new StoreLocations(lat, lng, loc, acc, item);
+                    StoreLocations s = new StoreLocations(lat, lng, loc, acc, item); //Create objects locally
 
-                    randomstore.add(s);
+                    randomstore.add(s);  //Store in list
 
                 }
 
-               Collections.shuffle(randomstore);
-               for (int i = 0; i < 10; i++) {
+               Collections.shuffle(randomstore); //To get random locations
+               for (int i = 0; i < 10; i++) {    //Print 10.
                    StoreLocations s = randomstore.get(i);
 
                    LatLng pos = new LatLng(s.longitude, s.latitude);
-                   mMap.addMarker(new MarkerOptions().position(pos).title(s.name));
+                   mMap.addMarker(new MarkerOptions().position(pos).title(s.name)); //create and display marker
                    mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
                }
 
@@ -152,39 +139,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onMarkerClick(final Marker marker) {
+            public boolean onMarkerClick(final Marker marker) {              //Listen to click on marker
                 mMap.moveCamera(CameraUpdateFactory.zoomBy(5));
                 button.setText("Click to Save " + marker.getTitle());
                 button.setVisibility(button.VISIBLE);
 
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(View v) {             //Listen to click on save
+
                         final String m = marker.getTitle();
-                        System.out.println(" m has "+m);
+
                         final ProgressDialog Dialog = new ProgressDialog(MapsActivity.this);
                         Dialog.setMessage("Saving");
-                        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        myRef.addListenerForSingleValueEvent(new ValueEventListener() {  //Listen to change in data of
+                                                                                        // single object
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+
                                 String i;
                                 String set;
                                 Integer number;
                                 String r = dataSnapshot.child("title").getValue(String.class);
+
                                 for (DataSnapshot detailsSnapshot : dataSnapshot.getChildren()) {
+
                                     String loc = detailsSnapshot.child("title").getValue(String.class);
-                                    if(m.equals(loc)){
+
+                                    if(m.equals(loc)){ //check for object with same title on firebase
+
                                         i=detailsSnapshot.child("item").getValue(Integer.class).toString();
                                         set = "marker"+i;
-                                        System.out.println("Value set at "+set);
 
-                                        number = detailsSnapshot.child("access").getValue(Integer.class);
-                                        System.out.println(" Access is "+number);
+                                        number = detailsSnapshot.child("access").getValue(Integer.class); //get its access count
+                                        Toast.makeText(MapsActivity.this, "This Facility is accessed "+number+" times "
+                                                , Toast.LENGTH_SHORT).show();
                                         number = number+1;
                                         Dialog.show();
 
 
-                                        myRef.child(set).child("access").setValue(number);
+                                        myRef.child(set).child("access").setValue(number); //increment the count
                                         Dialog.dismiss();
                                         Toast.makeText(MapsActivity.this, "Thank you for using FastER", Toast.LENGTH_SHORT).show();
                                         onRestart();
